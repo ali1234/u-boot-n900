@@ -82,6 +82,16 @@ _armboot_start:
 	.word _start
 #endif
 
+#ifdef CONFIG_CHAINLOADER
+.globl _INIT_LOADADDR
+_INIT_LOADADDR:
+	.word 0x0badc0de
+
+.globl _INIT_ATAGADDR
+_INIT_ATAGADDR:
+	.word 0x0badc0de
+#endif
+
 /*
  * These are defined in the board-specific linker script.
  */
@@ -123,17 +133,10 @@ reset:
 	/*
 	 * Ugly hack: store the u-boot load address and kernel params from
 	 * previous bootloader.
-	 * 0x82000000: address where this image was loaded
-	 * 0x82000004: mach_type
-	 * 0x82000008: atags address
 	 */
 	adr 	r0, _start		@ Where u-boot.bin was loaded
-	mov 	r3, #0x82000000		@ Dest addr. for saved data
-	str	r0, [r3]
-	add	r3, r3, #4
-	str	r1, [r3]
-	add	r3, r3, #4
-	str	r2, [r3]
+	str	r0, _INIT_LOADADDR
+	str	r2, _INIT_ATAGADDR
 	/* Copy u-boot.bin to TEXT_BASE if it isn't already there. */
 	adr	r0, _start		@ Where u-boot.bin was loaded
 	adr	r2, _start

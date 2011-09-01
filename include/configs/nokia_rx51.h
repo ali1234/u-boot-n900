@@ -35,15 +35,20 @@
 /*
  * High Level Configuration Options
  */
+
 #define CONFIG_ARMV7		1	/* This is an ARM V7 CPU core */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_OMAP3430		1	/* which is in a 3430 */
-#define CONFIG_OMAP3_RX51	1	/* working with RX51 */
 #define CONFIG_CHAINLOADER	1	/* Loaded by NOLO */
 #define CONFIG_L2_OFF		1	/* kernel won't boot if l2 enabled */
 					/* (old u-boot tried but failed to */
 					/*  enable it, due to a bug.)      */
+
+/* It doesn't really matter what we set this to. NOLO will load u-boot.bin
+ * in a random place anyway, and we have to copy.
+ */
+#define CONFIG_SYS_TEXT_BASE    0x80008000
 
 #define CONFIG_SDRC	/* The chip has SDRC controller */
 
@@ -73,10 +78,8 @@
  * Size of malloc() pool
  */
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
-						/* Sector */
+							/* Sector */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* bytes reserved for */
-						/* initial data */
 
 /*
  * Hardware drivers
@@ -199,8 +202,8 @@ int rx51_kp_getc(void);
 		"run meegoargs; " \
 		"bootm ${loadaddr}\0" \
 	"noloboot=echo Booting NOLO supplied kernel ...; " \
-		"setenv atags ${nolo_atagaddr};" \
-		"bootm ${nolo_kernaddr}\0" \
+		"setenv atagaddr ${init_atagaddr};" \
+		"bootm ${init_kernaddr}\0" \
 	"trymmc=if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \
@@ -280,7 +283,6 @@ int rx51_kp_getc(void);
  */
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 #define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_1_SIZE	(32 << 20)	/* at least 32 MiB */
 #define PHYS_SDRAM_2		OMAP34XX_SDRC_CS1
 
 /* SDRAM Bank Allocation method */

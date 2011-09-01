@@ -99,12 +99,6 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	char	*s;
 	int	machid = bd->bi_arch_number;
 	void	(*kernel_entry)(int zero, int arch, uint params);
-#ifdef CONFIG_CHAINLOADER
-	uint	bi_boot_params;
-	#define PARAMS bi_boot_params
-#else
-	#define PARAMS (bd->bi_boot_params)
-#endif
 
 #ifdef CONFIG_CMDLINE_TAG
 	char *commandline = getenv ("bootargs");
@@ -115,8 +109,8 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 	s = getenv ("machid");
 	if (s) {
-		machid = simple_strtoul (s, NULL, 16);
-		printf ("Using machid 0x%x from environment\n", machid);
+		machid = simple_strtoul(s, NULL, 16);
+		printf("Using machid %#x from environment\n", machid);
 	}
 
 	show_boot_progress (15);
@@ -132,10 +126,10 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	       (ulong) kernel_entry);
 
 #ifdef CONFIG_CHAINLOADER
-	s = getenv ("atags");
+	s = getenv ("atagaddr");
 	if (s) {
-		bi_boot_params = simple_strtoul (s, NULL, 16);
-		printf ("Using existing atags at 0x%x\n", params);
+		bd->bi_boot_params = simple_strtoul(s, NULL, 16);
+		printf("Using existing atags at %#x\n", params);
 	} else {
 #endif
 #if defined (CONFIG_SETUP_MEMORY_TAGS) || \
@@ -163,7 +157,6 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 		setup_end_tag(bd);
 #endif
 #ifdef CONFIG_CHAINLOADER
-		bi_boot_params = bd->bi_boot_params;
 	}
 #endif
 

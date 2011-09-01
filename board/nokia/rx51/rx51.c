@@ -44,6 +44,9 @@
 
 GraphicDevice gdev;
 
+extern unsigned int _INIT_LOADADDR;
+extern unsigned int _INIT_ATAGADDR;
+
 /*
  * Routine: board_init
  * Description: Early hardware init.
@@ -86,14 +89,12 @@ int misc_init_r(void)
 #ifdef CONFIG_CHAINLOADER
 	char buf[12];
 	printf("Getting NOLO supplied boot parameters...\n");
-	sprintf(buf, "0x%x", readl(0x82000000));
-	setenv("nolo_loadaddr", buf);
-	sprintf(buf, "0x%x", readl(0x82000000)+0x40000);
-	setenv("nolo_kernaddr", buf);
-	sprintf(buf, "0x%x", readl(0x82000004));
-	setenv("nolo_machtype", buf);
-	sprintf(buf, "0x%x", readl(0x82000008));
-	setenv("nolo_atagaddr", buf);
+	sprintf(buf, "%#x", _INIT_LOADADDR);
+	setenv("init_loadaddr", buf);
+	sprintf(buf, "%#x", _INIT_LOADADDR+0x40000);
+	setenv("init_kernaddr", buf);
+	sprintf(buf, "%#x", _INIT_ATAGADDR);
+	setenv("init_atagaddr", buf);
 #endif
 
 	dieid_num_r();
