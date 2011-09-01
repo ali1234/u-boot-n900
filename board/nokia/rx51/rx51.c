@@ -89,8 +89,6 @@ int misc_init_r(void)
 #ifdef CONFIG_CHAINLOADER
 	char buf[12];
 	printf("Getting NOLO supplied boot parameters...\n");
-	sprintf(buf, "%#x", _INIT_LOADADDR);
-	setenv("init_loadaddr", buf);
 	sprintf(buf, "%#x", _INIT_LOADADDR+0x40000);
 	setenv("init_kernaddr", buf);
 	sprintf(buf, "%#x", _INIT_ATAGADDR);
