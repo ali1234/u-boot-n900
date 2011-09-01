@@ -120,6 +120,20 @@ IRQ_STACK_START_IN:
 
 reset:
 #if (CONFIG_CHAINLOADER)
+	/*
+	 * Ugly hack: store the u-boot load address and kernel params from
+	 * previous bootloader.
+	 * 0x82000000: address where this image was loaded
+	 * 0x82000004: mach_type
+	 * 0x82000008: atags address
+	 */
+	adr 	r0, _start		@ Where u-boot.bin was loaded
+	mov 	r3, #0x82000000		@ Dest addr. for saved data
+	str	r0, [r3]
+	add	r3, r3, #4
+	str	r1, [r3]
+	add	r3, r3, #4
+	str	r2, [r3]
 	/* Copy u-boot.bin to TEXT_BASE if it isn't already there. */
 	adr	r0, _start		@ Where u-boot.bin was loaded
 	adr	r2, _start
