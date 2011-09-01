@@ -99,6 +99,12 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	char	*s;
 	int	machid = bd->bi_arch_number;
 	void	(*kernel_entry)(int zero, int arch, uint params);
+#ifdef CONFIG_CHAINLOADER
+	uint	bi_boot_params;
+	#define PARAMS bi_boot_params
+#else
+	#define PARAMS (bd->bi_boot_params)
+#endif
 
 #ifdef CONFIG_CMDLINE_TAG
 	char *commandline = getenv ("bootargs");
@@ -125,29 +131,40 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	debug ("## Transferring control to Linux (at address %08lx) ...\n",
 	       (ulong) kernel_entry);
 
+#ifdef CONFIG_CHAINLOADER
+	s = getenv ("atags");
+	if (s) {
+		bi_boot_params = simple_strtoul (s, NULL, 16);
+		printf ("Using existing atags at 0x%x\n", params);
+	} else {
+#endif
 #if defined (CONFIG_SETUP_MEMORY_TAGS) || \
     defined (CONFIG_CMDLINE_TAG) || \
     defined (CONFIG_INITRD_TAG) || \
     defined (CONFIG_SERIAL_TAG) || \
     defined (CONFIG_REVISION_TAG)
-	setup_start_tag (bd);
+		setup_start_tag (bd);
 #ifdef CONFIG_SERIAL_TAG
-	setup_serial_tag (&params);
+		setup_serial_tag (&params);
 #endif
 #ifdef CONFIG_REVISION_TAG
-	setup_revision_tag (&params);
+		setup_revision_tag (&params);
 #endif
 #ifdef CONFIG_SETUP_MEMORY_TAGS
-	setup_memory_tags (bd);
+		setup_memory_tags (bd);
 #endif
 #ifdef CONFIG_CMDLINE_TAG
-	setup_commandline_tag (bd, commandline);
+		setup_commandline_tag (bd, commandline);
 #endif
 #ifdef CONFIG_INITRD_TAG
-	if (images->rd_start && images->rd_end)
-		setup_initrd_tag (bd, images->rd_start, images->rd_end);
+		if (images->rd_start && images->rd_end)
+			setup_initrd_tag (bd, images->rd_start, images->rd_end);
 #endif
-	setup_end_tag(bd);
+		setup_end_tag(bd);
+#endif
+#ifdef CONFIG_CHAINLOADER
+		bi_boot_params = bd->bi_boot_params;
+	}
 #endif
 
 	announce_and_cleanup();
