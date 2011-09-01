@@ -119,6 +119,25 @@ IRQ_STACK_START_IN:
  */
 
 reset:
+#if (CONFIG_CHAINLOADER)
+	/* Copy u-boot.bin to TEXT_BASE if it isn't already there. */
+	adr	r0, _start		@ Where u-boot.bin was loaded
+	adr	r2, _start
+	add	r2, r2, #0x40000	@ Load address + 0x40000
+	ldr	r1, _TEXT_BASE		@ Where u-boot.bin needs to be
+	cmp	r0, r1
+	beq	realreset		@ skip if loaded in correct position
+	adr	r11, realreset		@ Build address to jump to in new copy
+	sub	r11, r11, r0		@ Subtract _start
+	add	r11, r11, r1		@ Add _TEXT_BASE
+chaincopy:
+	ldmia	r0!, {r3 - r10}		@ copy from source address [r0]
+	stmia	r1!, {r3 - r10}		@ copy to   target address [r1]
+	cmp	r0, r2			@ until source end address [r2]
+	bne	chaincopy		@ loop until equal
+	mov	pc, r11
+realreset:
+#endif
 	/*
 	 * set the cpu to SVC32 mode
 	 */
