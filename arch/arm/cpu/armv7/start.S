@@ -82,6 +82,16 @@ _armboot_start:
 	.word _start
 #endif
 
+#ifdef CONFIG_CHAINLOADER
+.globl _INIT_LOADADDR
+_INIT_LOADADDR:
+	.word 0x0badc0de
+
+.globl _INIT_ATAGADDR
+_INIT_ATAGADDR:
+	.word 0x0badc0de
+#endif
+
 /*
  * These are defined in the board-specific linker script.
  */
@@ -122,6 +132,8 @@ reset:
 #if (CONFIG_CHAINLOADER)
 	/* Copy u-boot.bin to TEXT_BASE if it isn't already there. */
 	adr	r0, _start		@ Where u-boot.bin was loaded
+	str	r0, _INIT_LOADADDR
+	str	r2, _INIT_ATAGADDR
 	adr	r2, _start
 	add	r2, r2, #0x40000	@ Load address + 0x40000
 	ldr	r1, _TEXT_BASE		@ Where u-boot.bin needs to be
